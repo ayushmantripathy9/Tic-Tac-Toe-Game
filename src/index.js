@@ -2,27 +2,77 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-class Block extends React.Component{
-    render(){
-        return(
-            <button className = "block">
-                {this.props.value}
-            </button>
-        );
-    }
+
+function Block(props){
+    return(
+        <button 
+            className = "block" 
+            onClick = {props.onClick}
+        >
+            {props.value}
+        </button>        
+    );
 }
 
+function Winner(blocks){
+    const winningCombinations = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],        
+    ];
+    for(let i = 0 ; i < winningCombinations.length; ++i){
+        const [x,y,z] =winningCombinations[i];
+        if(blocks[x] && blocks[x] === blocks[y] && blocks[x] === blocks[z]){
+            return blocks[x];
+        }
+    }
+    return null;
+}
 class Board extends React.Component{
+    constructor(props){
+        super(props);
+        this.state = {
+            blocks : Array(9).fill(null),
+            isX :true,
+        };
+    }
+
+    handleClick(id){
+        const x = this.state.blocks.slice();
+        if(Winner(x) || x[id]){
+            return;
+        }
+        if(this.state.isX)
+            x[id] = 'X';
+        else    
+            x[id] = 'O';
+        this.setState({
+            blocks : x,
+            isX : !this.state.isX,
+        });
+    }
     renderBlock(id){
-        return <Block value = {id}/>;
+        return(
+            <Block 
+                value = {this.state.blocks[id]}
+                onClick = {() => this.handleClick(id)}
+            />
+        );
     }
 
     render(){
-        const moveData = 'X';
+        const winner = Winner(this.state.blocks);
+        let status = winner?'!!! Winner '+(winner)+' !!!':'Next Player: ' + (this.state.isX?'X':'O');
+
         return(
             <div className="boardBody">
-                <div className = "moveSpecifier"> 
-                    Next Player : {moveData}
+                <div className = "declarator"> 
+                    {status}
                 </div>
                 <div className = "row">
                     {this.renderBlock(0)}
