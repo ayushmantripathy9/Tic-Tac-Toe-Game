@@ -33,28 +33,44 @@ function Winner(blocks){
     }
     return null;
 }
+
+
 class Board extends React.Component{
     constructor(props){
         super(props);
         this.state = {
             blocks : Array(9).fill(null),
             isX :true,
+            clicks :0,
         };
     }
-
+    checkWinner(){
+        const winner = Winner(this.state.blocks);
+        if(winner){
+            alert('!!!! '+winner+' wins !!!');
+            return;
+        }
+        if(this.state.clicks == 9){
+            alert('!!No Winner Found -- DRAW !!');
+        }
+    }
     handleClick(id){
         const x = this.state.blocks.slice();
-        if(Winner(x) || x[id]){
+        if(Winner(x) || x[id]){    
             return;
         }
         if(this.state.isX)
             x[id] = 'X';
         else    
             x[id] = 'O';
-        this.setState({
-            blocks : x,
-            isX : !this.state.isX,
-        });
+        this.setState(
+            {
+                blocks : x,
+                isX : !this.state.isX,
+                clicks : this.state.clicks+1,
+            },
+            this.checkWinner
+        );
     }
     renderBlock(id){
         return(
@@ -65,9 +81,17 @@ class Board extends React.Component{
         );
     }
 
+
     render(){
         const winner = Winner(this.state.blocks);
-        let status = winner?'!!! Winner '+(winner)+' !!!':'Next Player: ' + (this.state.isX?'X':'O');
+        let status = 'Next Player: ' + (this.state.isX?'X':'O');
+
+        if(winner){
+            status = '!!! Winner '+(winner)+' !!!';
+        }
+        else if(this.state.clicks == 9){
+            status = '!!!! DRAW !!!!';
+        }
 
         return(
             <div className="boardBody">
@@ -88,8 +112,9 @@ class Board extends React.Component{
                     {this.renderBlock(6)}
                     {this.renderBlock(7)}
                     {this.renderBlock(8)}
-                </div>                                  
+                </div>                                
             </div>
+            
         );
     }
 }
@@ -97,7 +122,7 @@ class Board extends React.Component{
 class Game extends React.Component{
     render(){
         return(
-            <div className="game">
+            <div className="game" align='center'>
                 <div className = "board">
                     <Board/>
                 </div>
@@ -112,4 +137,3 @@ class Game extends React.Component{
 
 
 ReactDOM.render(<Game />,document.getElementById('root'));
-    
